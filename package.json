@@ -1,24 +1,51 @@
 {
   "name": "webext-processes",
   "version": "1.0.0",
-  "description": "A TypeScript-friendly wrapper for the Chrome Processes API",
+  "description": "Typed process management helpers for Chrome extensions — monitor memory, CPU, and manage extension processes. Part of @zovo/webext.",
   "main": "dist/index.js",
+  "module": "dist/index.js",
   "types": "dist/index.d.ts",
+  "sideEffects": false,
   "files": [
     "dist"
   ],
   "scripts": {
     "build": "tsc",
     "test": "vitest run",
+    "typecheck": "tsc --noEmit",
     "prepublishOnly": "npm run build"
   },
   "keywords": [
     "chrome-extension",
-    "processes",
-    "typescript"
+    "chrome-processes",
+    "process-manager",
+    "browser-extension",
+    "chrome-api",
+    "manifest-v3",
+    "webextension",
+    "typescript",
+    "zovo"
   ],
   "author": "theluckystrike",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/theluckystrike/webext-processes.git"
+  },
+  "homepage": "https://github.com/theluckystrike/webext-processes#readme",
+  "bugs": {
+    "url": "https://github.com/theluckystrike/webext-processes/issues"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
+    }
+  },
   "devDependencies": {
     "@types/chrome": "^0.0.260",
     "@types/node": "^20.11.24",
