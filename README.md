@@ -1,33 +1,37 @@
 # webext-processes
 
+<div align="center">
+
 [![npm version](https://img.shields.io/npm/v/webext-processes.svg)](https://www.npmjs.com/package/webext-processes)
-[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue.svg)](https://www.typescriptlang.org/)
+[![npm license](https://img.shields.io/npm/l/webext-processes.svg)](https://opensource.org/licenses/MIT)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue.svg)](https://www.typescriptlang.org/)
+[![CI](https://github.com/theluckystrike/webext-processes/actions/workflows/ci.yml/badge.svg)](https://github.com/theluckystrike/webext-processes/actions/workflows/ci.yml)
 [![Bundle Size](https://img.shields.io/bundlephobia/min/webext-processes)](https://bundlephobia.com/package/webext-processes)
 
-Typed process management helpers for Chrome extensions — monitor memory, CPU, and manage extension processes. Part of [@zovo/webext](https://github.com/theluckystrike).
+</div>
 
-## Overview
+A TypeScript-friendly wrapper for the Chrome Processes API — monitor memory, CPU, and manage extension processes with full type safety.
 
-`webext-processes` provides a TypeScript-friendly wrapper around the Chrome Processes API, enabling you to:
+## Features
 
-- Get the renderer process ID for any tab
-- Retrieve detailed process information (CPU, memory, network usage)
-- Terminate hanging or problematic processes
-- Monitor extension performance in real-time
+- 🎯 **Full TypeScript Support** — Complete type definitions for all Chrome Process APIs
+- 🛡️ **Runtime Safety** — Graceful error handling with descriptive error messages
+- 📊 **Memory Monitoring** — Track private memory, JS heap, cache sizes
+- ⚡ **CPU Usage** — Access CPU utilization data for each process
+- 🔄 **Process Management** — Terminate individual renderer processes safely
+- 🔗 **Part of @zovo/webext** — Seamless integration with the Zovo WebExtension ecosystem
 
 ## Requirements
 
-- **Chrome Extension Manifest V3**
-- **`processes`** permission in your `manifest.json`
+- **Chrome** (Dev channel or with flag enabled)
+- **Manifest V3**
+- `processes` permission in your `manifest.json`
 
 ```json
 {
   "permissions": ["processes"]
 }
 ```
-
-> **Note:** The Chrome Processes API is only available on Chrome's Dev channel and requires special access. For more details, see the [Chrome Processes API documentation](https://developer.chrome.com/docs/extensions/reference/processes/).
 
 ## Installation
 
@@ -50,7 +54,7 @@ yarn add webext-processes
 ```typescript
 import { Processes } from 'webext-processes';
 
-// Get the process ID for a specific tab
+// Get the renderer process ID for a specific tab
 const processId = await Processes.getProcessIdForTab(1);
 console.log('Process ID:', processId);
 ```
@@ -58,33 +62,19 @@ console.log('Process ID:', processId);
 ### Get Process Information
 
 ```typescript
-import { Processes, Process } from 'webext-processes';
-
-// Get detailed info for a process (including memory)
-const processId = await Processes.getProcessIdForTab(1);
-const info = await Processes.getProcessInfo(processId, true);
-
-const processInfo: Process = info[processId];
-console.log('CPU usage:', processInfo.cpu);
-console.log('Network:', processInfo.network);
-console.log('Private memory:', processInfo.privateMemory);
-console.log('JS memory allocated:', processInfo.jsMemoryAllocated);
-console.log('Process type:', processInfo.type);
-```
-
-### Get Multiple Processes
-
-```typescript
 import { Processes } from 'webext-processes';
 
-// Get info for multiple processes at once
-const tabIds = [1, 2, 3];
-const processIds = await Promise.all(
-  tabIds.map(tabId => Processes.getProcessIdForTab(tabId))
-);
+// Get info for a single process
+const info = await Processes.getProcessInfo(12345, true);
+console.log('CPU Usage:', info[12345].cpu);
+console.log('Private Memory:', info[12345].privateMemory);
+console.log('JS Heap Used:', info[12345].jsMemoryUsed);
 
-const allInfo = await Processes.getProcessInfo(processIds, true);
-console.log('All process info:', allInfo);
+// Get info for multiple processes at once
+const multiInfo = await Processes.getProcessInfo([123, 456, 789], true);
+for (const [pid, proc] of Object.entries(multiInfo)) {
+  console.log(`Process ${pid}:`, proc.type, proc.cpu);
+}
 ```
 
 ### Terminate a Process
@@ -92,43 +82,21 @@ console.log('All process info:', allInfo);
 ```typescript
 import { Processes } from 'webext-processes';
 
-// Terminate a hanging process
+// Get process ID for a tab
 const processId = await Processes.getProcessIdForTab(1);
-const terminated = await Processes.terminate(processId);
 
-if (terminated) {
+// Attempt to terminate the process
+const didTerminate = await Processes.terminate(processId);
+if (didTerminate) {
   console.log('Process terminated successfully');
 } else {
   console.log('Failed to terminate process');
 }
 ```
 
-## API
+### Process Types
 
-### `Processes.getProcessIdForTab(tabId: number): Promise<number>`
-
-Returns the ID of the renderer process for the given tab.
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `tabId` | `number` | The ID of the tab |
-
-**Returns:** `Promise<number>` - The process ID
-
----
-
-### `Processes.getProcessInfo(processIds: number | number[], includeMemory?: boolean): Promise<Record<number, Process>>`
-
-Returns information about the given processes.
-
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `processIds` | `number \| number[]` | — | Single process ID or array of IDs |
-| `includeMemory` | `boolean` | `false` | Include detailed memory information |
-
-**Returns:** `Promise<Record<number, Process>>` - Object mapping process IDs to process info
-
-#### Process Interface
+The `Process` interface provides detailed information about each process:
 
 ```typescript
 interface Process {
@@ -150,36 +118,42 @@ interface Process {
 }
 ```
 
----
+## API Reference
 
-### `Processes.terminate(processId: number): Promise<boolean>`
+| Method | Description |
+|--------|-------------|
+| `Processes.getProcessIdForTab(tabId)` | Returns the renderer process ID for a given tab |
+| `Processes.getProcessInfo(processIds, includeMemory?)` | Returns detailed info for one or more processes. Set `includeMemory` to `true` for memory metrics |
+| `Processes.terminate(processId)` | Terminates a renderer process. Returns `true` if successful |
 
-Terminates the given renderer process.
+## Error Handling
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `processId` | `number` | The ID of the process to terminate |
+All methods throw descriptive errors if the Chrome Processes API is unavailable or if the operation fails:
 
-**Returns:** `Promise<boolean>` - Whether the process was terminated
-
----
+```typescript
+try {
+  const info = await Processes.getProcessInfo(12345);
+} catch (error) {
+  if (error.message.includes('not available')) {
+    console.log('Chrome Processes API requires Dev channel or special flags');
+  }
+}
+```
 
 ## Part of @zovo/webext
 
-This package is part of the `@zovo/webext` collection of Chrome extension utilities:
-
-- [webext-badge](https://github.com/theluckystrike/webext-badge) — Badge management
-- [webext-clipboard](https://github.com/theluckystrike/webext-clipboard) — Clipboard operations
-- [webext-cookies](https://github.com/theluckystrike/webext-cookies) — Cookies API wrapper
-- [webext-event-bus](https://github.com/theluckystrike/webext-event-bus) — Event bus for extensions
-- [webext-tabs](https://github.com/theluckystrike/webext-tabs) — Tab management
-- [webext-notifications](https://github.com/theluckystrike/webext-notifications) — Notifications API
-- [webext-devtools](https://github.com/theluckystrike/webext-devtools) — DevTools API helpers
+`webext-processes` is part of the @zovo/webext ecosystem — a collection of TypeScript packages for building modern Chrome extensions.
 
 ## License
 
-MIT © [theluckystrike](https://github.com/theluckystrike)
+MIT License — see [LICENSE](LICENSE) for details.
 
 ---
 
-[Zovo](https://zovo.one) — Building the future of Chrome extensions
+<div align="center">
+
+Made with 🔥 by [theluckystrike](https://github.com/theluckystrike)
+
+[zovo.one](https://zovo.one)
+
+</div>

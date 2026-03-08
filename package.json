@@ -2,13 +2,20 @@
   "name": "webext-processes",
   "version": "1.0.0",
   "description": "Typed process management helpers for Chrome extensions — monitor memory, CPU, and manage extension processes. Part of @zovo/webext.",
-  "main": "dist/index.js",
-  "module": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "sideEffects": false,
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
   "files": [
     "dist"
   ],
+  "sideEffects": false,
   "scripts": {
     "build": "tsc",
     "test": "vitest run",
@@ -28,13 +35,14 @@
   "keywords": [
     "chrome-extension",
     "chrome-processes",
-    "processes",
-    "typescript",
+    "process-manager",
     "browser-extension",
     "chrome-api",
     "manifest-v3",
     "webextension",
-    "process-manager"
+    "typescript",
+    "memory",
+    "cpu"
   ],
   "author": "theluckystrike",
   "license": "MIT",
@@ -43,12 +51,5 @@
     "@types/node": "^20.11.24",
     "typescript": "^5.3.3",
     "vitest": "^1.3.1"
-  },
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "require": "./dist/index.js"
-    }
   }
 }
