@@ -15,7 +15,7 @@ cd webext-processes
 3. **Install dependencies**:
 
 ```bash
-npm install
+pnpm install
 ```
 
 4. **Create a feature branch**:
@@ -30,13 +30,13 @@ git checkout -b feature/your-feature-name
 2. Run tests to ensure everything works:
 
 ```bash
-npm test
+pnpm test
 ```
 
 3. Build the project:
 
 ```bash
-npm run build
+pnpm run build
 ```
 
 4. Commit your changes with a descriptive message:
@@ -57,8 +57,8 @@ git push origin feature/your-feature-name
 
 Before submitting your PR, please ensure:
 
-- [ ] Tests pass (`npm test` passes)
-- [ ] Code builds without errors (`npm run build` succeeds)
+- [ ] Tests pass (`pnpm test` passes)
+- [ ] Code builds without errors (`pnpm run build` succeeds)
 - [ ] New code is properly typed (TypeScript)
 - [ ] Documentation is updated if needed (README, comments)
 - [ ] Commit messages are clear and descriptive
