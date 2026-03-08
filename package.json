@@ -1,7 +1,7 @@
 {
   "name": "webext-processes",
   "version": "1.0.0",
-  "description": "A TypeScript-friendly wrapper for the Chrome Processes API",
+  "description": "Typed process management helpers for Chrome extensions. Part of @zovo/webext.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
@@ -15,7 +15,14 @@
   "keywords": [
     "chrome-extension",
     "processes",
-    "typescript"
+    "process-manager",
+    "typescript",
+    "webextension",
+    "browser-extension",
+    "manifest-v3",
+    "chrome-processes",
+    "memory",
+    "cpu"
   ],
   "author": "theluckystrike",
   "license": "MIT",
