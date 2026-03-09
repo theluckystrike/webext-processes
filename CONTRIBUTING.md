@@ -5,85 +5,80 @@ Thank you for your interest in contributing! This document outlines the process 
 ## Development Setup
 
 1. **Fork the repository** on GitHub
-2. **Clone your fork**:
+2. **Clone your fork** locally:
 
-   ```bash
-   git clone https://github.com/YOUR_USERNAME/webext-processes.git
-   cd webext-processes
-   ```
+```bash
+git clone https://github.com/YOUR_USERNAME/webext-processes.git
+cd webext-processes
+```
 
-3. **Install dependencies** (we use pnpm):
+3. **Install dependencies**:
 
-   ```bash
-   pnpm install
-   ```
+```bash
+pnpm install
+```
 
 4. **Create a feature branch**:
 
-   ```bash
-   git checkout -b feature/your-feature-name
-   ```
+```bash
+git checkout -b feature/your-feature-name
+```
 
 ## Development Workflow
 
-### Running Tests
-
-We use [Vitest](https://vitest.dev/) for testing. Run tests with:
+1. Make your changes in the `src/` directory
+2. Run tests to ensure everything works:
 
 ```bash
 pnpm test
 ```
 
-For watch mode during development:
+3. Build the project:
 
 ```bash
-pnpm test --watch
+pnpm run build
 ```
 
-### Building
-
-Build the TypeScript project:
+4. Commit your changes with a descriptive message:
 
 ```bash
-pnpm build
+git commit -m "Add feature: description of your changes"
 ```
 
-### Code Style
+5. Push to your fork:
 
-- Use **TypeScript** for all new code
-- Follow the existing code style (ESLint-compatible)
-- Add type definitions for all new functions and interfaces
-- Write tests for new functionality
+```bash
+git push origin feature/your-feature-name
+```
 
-## Submitting Changes
+6. **Open a Pull Request** against the `main` branch of the original repository
 
-1. **Commit your changes** with a descriptive message:
+## Pull Request Checklist
 
-   ```bash
-   git commit -am 'Add new feature: feature description'
-   ```
+Before submitting your PR, please ensure:
 
-2. **Push to your fork**:
+- [ ] Tests pass (`pnpm test` passes)
+- [ ] Code builds without errors (`pnpm run build` succeeds)
+- [ ] New code is properly typed (TypeScript)
+- [ ] Documentation is updated if needed (README, comments)
+- [ ] Commit messages are clear and descriptive
 
-   ```bash
-   git push origin feature/your-feature-name
-   ```
+## Code Style
 
-3. **Open a Pull Request** against the `main` branch of the original repository
-
-4. **Fill out the PR template** with:
-   - Description of changes
-   - Related issues (if any)
-   - Testing performed
+- Use TypeScript for all new code
+- Follow existing code formatting
+- Add JSDoc comments for public APIs
+- Keep functions focused and small
 
 ## Reporting Issues
 
-When reporting issues, please include:
+If you find a bug or have a feature request:
 
-- Chrome version and OS
-- Steps to reproduce
-- Expected vs actual behavior
-- Any error messages
+1. Check if the issue already exists
+2. If not, create a new issue with:
+   - Clear description
+   - Steps to reproduce (for bugs)
+   - Expected vs actual behavior
 
 ## License
 
