@@ -1,20 +1,17 @@
 # webext-processes
 
-[![GitHub stars](https://img.shields.io/github/stars/theluckystrike/webext-processes)](https://github.com/theluckystrike/webext-processes/stargazers)
-[![License](https://img.shields.io/github/license/theluckystrike/webext-processes)](LICENSE)
-[![Last commit](https://img.shields.io/github/last-commit/theluckystrike/webext-processes)](https://github.com/theluckystrike/webext-processes/commit/main)
+A TypeScript-friendly, Promise-based wrapper for the Chrome Processes API. Provides type-safe access to browser process information, memory metrics, and process termination capabilities for Chrome extensions.
 
-A TypeScript-friendly wrapper for the Chrome Processes API. This library provides a clean, promise-based interface to access Chrome's internal process information, enabling extension developers to monitor and manage browser processes.
+## Why webext-processes?
 
-> **Note:** The Chrome Processes API is only available on the Chrome Dev channel or for certain extensions with appropriate permissions.
+The Chrome Processes API is a powerful but underutilized API that lets you:
 
-## Features
+- **Monitor performance**: Get CPU, memory, and network usage per process
+- **Debug extensions**: Identify which processes are consuming resources  
+- **Manage processes**: Terminate runaway or unresponsive renderer processes
+- **Track tab activity**: Map tabs to their underlying renderer processes
 
-- 🚀 Promise-based API for modern async/await patterns
-- 📦 Lightweight TypeScript wrapper with full type definitions
-- 🔍 Get process information for tabs (CPU, memory usage, etc.)
-- 🛑 Terminate hanging or problematic renderer processes
-- ✅ Built-in error handling with proper TypeScript types
+This library wraps the callback-based Chrome API with modern Promises and full TypeScript support.
 
 ## Installation
 
@@ -22,23 +19,215 @@ A TypeScript-friendly wrapper for the Chrome Processes API. This library provide
 npm install webext-processes
 ```
 
-or with yarn:
-
-```bash
-yarn add webext-processes
-```
-
-or with pnpm:
+Or with pnpm:
 
 ```bash
 pnpm add webext-processes
 ```
 
+Or with yarn:
+
+```bash
+yarn add webext-processes
+```
+
 ## Requirements
 
-- Chrome Dev channel or a Chrome extension with the `processes` permission
-- TypeScript 5.0+ (if using TypeScript)
-- The `processes` permission in your `manifest.json`:
+- Chrome browser (Dev channel recommended - see below)
+- Chrome extension with `processes` permission
+
+### Chrome Processes API Availability
+
+The Chrome Processes API (`chrome.processes`) is **not available in stable Chrome**. It requires:
+
+- **Chrome Dev channel** or **Canary**
+- **特定 extensions** with special permissions (typically enterprise or debugging extensions)
+
+For most extension use cases, you'll want to check if the API is available:
+
+```typescript
+import { Processes } from 'webext-processes';
+
+if (chrome.processes) {
+  const processId = await Processes.getProcessIdForTab(tabId);
+}
+```
+
+## Usage
+
+### Get Process ID for a Tab
+
+```typescript
+import { Processes } from 'webext-processes';
+
+// Get the renderer process ID for a tab
+const processId = await Processes.getProcessIdForTab(tabId);
+console.log(`Tab ${tabId} runs in process ${processId}`);
+```
+
+### Get Process Information
+
+```typescript
+import { Processes } from 'webext-processes';
+
+// Get basic process info
+const info = await Processes.getProcessIdForTab(123);
+const processInfo = await Processes.getProcessInfo(processId);
+
+// Get detailed memory information
+const detailedInfo = await Processes.getProcessInfo(processId, true);
+
+console.log('Process type:', detailedInfo[processId].type);
+console.log('CPU usage:', detailedInfo[processId].cpu);
+console.log('Memory allocated:', detailedInfo[processId].jsMemoryAllocated);
+```
+
+### Terminate a Process
+
+```typescript
+import { Processes } from 'webext-processes';
+
+// Terminate an unresponsive renderer process
+const terminated = await Processes.terminate(processId);
+
+if (terminated) {
+  console.log('Process terminated successfully');
+} else {
+  console.log('Failed to terminate process');
+}
+```
+
+### Complete Example: Monitor Tab Processes
+
+```typescript
+import { Processes } from 'webext-processes';
+
+async function analyzeTab(tabId: number) {
+  try {
+    // Get the process ID for this tab
+    const processId = await Processes.getProcessIdForTab(tabId);
+    
+    // Get detailed info with memory metrics
+    const info = await Processes.getProcessInfo(processId, true);
+    const process = info[processId];
+    
+    console.log({
+      type: process.type,
+      cpu: process.cpu,
+      memory: {
+        js: process.jsMemoryAllocated,
+        network: process.network,
+        private: process.privateMemory,
+      }
+    });
+    
+  } catch (error) {
+    if (error.message.includes('not available')) {
+      console.log('Processes API not available in this Chrome version');
+    } else {
+      throw error;
+    }
+  }
+}
+```
+
+## API Reference
+
+### `Processes.getProcessIdForTab(tabId: number): Promise<number>`
+
+Returns the ID of the renderer process associated with the given tab.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `tabId` | `number` | The ID of the tab |
+
+**Returns:** `Promise<number>` - The process ID
+
+---
+
+### `Processes.getProcessInfo(processIds: number | number[], includeMemory?: boolean): Promise<Record<number, Process>>`
+
+Retrieves information about one or more processes.
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `processIds` | `number` or `number[]` | - | Single process ID or array of IDs |
+| `includeMemory` | `boolean` | `false` | Whether to include detailed memory metrics |
+
+**Returns:** `Promise<Record<number, Process>>` - Object mapping process IDs to process info
+
+---
+
+### `Processes.terminate(processId: number): Promise<boolean>`
+
+Terminates the specified renderer process.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `processId` | `number` | The ID of the process to terminate |
+
+**Returns:** `Promise<boolean>` - `true` if terminated successfully
+
+**Note:** This can only terminate renderer processes. Attempting to terminate browser or other critical processes will fail.
+
+---
+
+## Type Definitions
+
+### Process
+
+```typescript
+interface Process {
+  /** Unique process identifier */
+  id: number;
+  
+  /** Operating system process ID */
+  osProcessId: number;
+  
+  /** Process type */
+  type: 'browser' | 'renderer' | 'extension' | 'notification' | 'plugin' | 'worker' | 'other';
+  
+  /** Profile name */
+  profile: string;
+  
+  /** NaCl debug port (if applicable) */
+  naclDebugPort: number;
+  
+  /** Tasks/title info */
+  tasks: { title: string; tabId?: number }[];
+  
+  /** CPU usage (when includeMemory: true) */
+  cpu?: number;
+  
+  /** Network usage in KB/s (when includeMemory: true) */
+  network?: number;
+  
+  /** Private memory usage (when includeMemory: true) */
+  privateMemory?: number;
+  
+  /** JavaScript heap allocated (when includeMemory: true) */
+  jsMemoryAllocated?: number;
+  
+  /** JavaScript heap used (when includeMemory: true) */
+  jsMemoryUsed?: number;
+  
+  /** SQLite memory used (when includeMemory: true) */
+  sqliteMemory?: number;
+  
+  /** Image cache memory (when includeMemory: true) */
+  imageCacheMemory?: number;
+  
+  /** Script cache memory (when includeMemory: true) */
+  scriptCacheMemory?: number;
+  
+  /** CSS cache memory (when includeMemory: true) */
+  cssCacheMemory?: number;
+}
+```
+
+## Permissions
+
+Add the `processes` permission to your `manifest.json`:
 
 ```json
 {
@@ -48,142 +237,51 @@ pnpm add webext-processes
 }
 ```
 
-## Usage
+**Note:** The `processes` permission is restricted and typically requires approval from Google for public extensions. It's primarily intended for:
 
-```typescript
-import { Processes } from 'webext-processes';
+- Enterprise extensions
+- Developer/debugging tools
+- Internal enterprise tooling
 
-// Get the process ID for a specific tab
-const tabId = 1;
-const processId = await Processes.getProcessIdForTab(tabId);
-console.log('Process ID:', processId);
+## Error Handling
 
-// Get detailed process information (including memory stats)
-const processInfo = await Processes.getProcessInfo(processId, true);
-const info = processInfo[processId];
-
-console.log('Process type:', info.type);
-console.log('CPU usage:', info.cpu, '%');
-console.log('Memory allocated:', info.jsMemoryAllocated, 'bytes');
-console.log('Tasks:', info.tasks);
-
-// Terminate a problematic process
-const terminated = await Processes.terminate(processId);
-console.log('Process terminated:', terminated);
-```
-
-## API Reference
-
-### `Processes.getProcessIdForTab(tabId: number): Promise<number>`
-
-Returns the ID of the renderer process for the given tab.
-
-**Parameters:**
-- `tabId` (number): The ID of the tab to get the process ID for.
-
-**Returns:** Promise resolving to the process ID.
-
-**Example:**
-```typescript
-const processId = await Processes.getProcessIdForTab(1);
-```
-
----
-
-### `Processes.getProcessInfo(processIds: number | number[], includeMemory?: boolean): Promise<Record<number, Process>>`
-
-Returns information about the given processes.
-
-**Parameters:**
-- `processIds` (number | number[]): A single process ID or array of process IDs.
-- `includeMemory` (boolean, optional): Whether to include detailed memory information. Default: `false`.
-
-**Returns:** Promise resolving to a record of process IDs to Process objects.
-
-**Process Object Properties:**
-| Property | Type | Description |
-|----------|------|-------------|
-| `id` | number | The process ID |
-| `osProcessId` | number | The OS process ID |
-| `type` | string | Process type: 'browser', 'renderer', 'extension', 'notification', 'plugin', 'worker', or 'other' |
-| `profile` | string | The profile associated with the process |
-| `naclDebugPort` | number | NaCl debug port (if applicable) |
-| `tasks` | Array | Array of tasks/title and optional tabId |
-| `cpu` | number? | CPU usage percentage (when includeMemory is true) |
-| `network` | number? | Network usage (when includeMemory is true) |
-| `privateMemory` | number? | Private memory usage (when includeMemory is true) |
-| `jsMemoryAllocated` | number? | JavaScript heap allocated (when includeMemory is true) |
-| `jsMemoryUsed` | number? | JavaScript heap used (when includeMemory is true) |
-| `sqliteMemory` | number? | SQLite memory usage (when includeMemory is true) |
-| `imageCacheMemory` | number? | Image cache memory (when includeMemory is true) |
-| `scriptCacheMemory` | number? | Script cache memory (when includeMemory is true) |
-| `cssCacheMemory` | number? | CSS cache memory (when includeMemory is true) |
-
-**Example:**
-```typescript
-// Get basic info for multiple processes
-const info = await Processes.getProcessInfo([123, 456, 789]);
-
-// Get detailed memory information for a single process
-const detailedInfo = await Processes.getProcessInfo(123, true);
-```
-
----
-
-### `Processes.terminate(processId: number): Promise<boolean>`
-
-Terminates the given renderer process.
-
-**Parameters:**
-- `processId` (number): The ID of the process to terminate.
-
-**Returns:** Promise resolving to `true` if the process was terminated, `false` otherwise.
-
-**Example:**
-```typescript
-const terminated = await Processes.terminate(processId);
-if (terminated) {
-  console.log('Process successfully terminated');
-}
-```
-
----
-
-### Error Handling
-
-The API throws errors when:
-- The Chrome Processes API is not available
-- Chrome runtime errors occur
+The library throws descriptive errors for common issues:
 
 ```typescript
 import { Processes } from 'webext-processes';
 
 try {
-  const processId = await Processes.getProcessIdForTab(1);
+  const processId = await Processes.getProcessIdForTab(tabId);
 } catch (error) {
-  if (error instanceof Error) {
-    console.error('Failed to get process ID:', error.message);
+  if (error.message.includes('not available')) {
+    // The Processes API is not available in this Chrome version
+    console.warn('Processes API requires Chrome Dev/Canary channel');
+  } else if (error.message.includes('No process with id')) {
+    // The tab or process no longer exists
+    console.warn('Tab or process not found');
+  } else {
+    throw error;
   }
 }
 ```
 
-## Project Structure
+## Building
 
+```bash
+npm install
+npm run build
 ```
-webext-processes/
-├── src/
-│   ├── index.ts        # Main source code
-│   └── index.test.ts   # Unit tests
-├── LICENSE             # MIT License
-├── package.json        # Package configuration
-├── tsconfig.json       # TypeScript configuration
-└── README.md           # This file
+
+## Testing
+
+```bash
+npm test
 ```
 
 ## License
 
-MIT License - see the [LICENSE](LICENSE) file for details.
+MIT License — see [LICENSE](LICENSE) for details.
 
 ---
 
-Built at [zovo.one](https://zovo.one) by [theluckystrike](https://github.com/theluckystrike)
+Built by [theluckystrike](https://github.com/theluckystrike) — [zovo.one](https://zovo.one)
