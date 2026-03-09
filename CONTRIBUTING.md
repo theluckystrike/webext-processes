@@ -1,84 +1,90 @@
 # Contributing to webext-processes
 
-Thank you for your interest in contributing! This document outlines the process for contributing to this project.
+Thank you for your interest in contributing to `webext-processes`! This document outlines the process for contributing to this project.
 
 ## Development Setup
 
-1. **Fork the repository** on GitHub
-2. **Clone your fork** locally:
+1. **Fork the repository** — Click the "Fork" button on the repository page
 
-```bash
-git clone https://github.com/YOUR_USERNAME/webext-processes.git
-cd webext-processes
-```
+2. **Clone your fork:**
 
-3. **Install dependencies**:
+   ```bash
+   git clone https://github.com/YOUR_USERNAME/webext-processes.git
+   cd webext-processes
+   ```
 
-```bash
-pnpm install
-```
+3. **Install dependencies:**
 
-4. **Create a feature branch**:
+   ```bash
+   pnpm install
+   ```
 
-```bash
-git checkout -b feature/your-feature-name
-```
+4. **Create a feature branch:**
+
+   ```bash
+   git checkout -b feature/your-feature-name
+   ```
 
 ## Development Workflow
 
-1. Make your changes in the `src/` directory
-2. Run tests to ensure everything works:
+1. **Make your changes** — Implement your feature or bug fix
 
-```bash
-pnpm test
-```
+2. **Run tests:**
 
-3. Build the project:
+   ```bash
+   pnpm test
+   ```
 
-```bash
-pnpm run build
-```
+3. **Build the project:**
 
-4. Commit your changes with a descriptive message:
+   ```bash
+   pnpm build
+   ```
 
-```bash
-git commit -m "Add feature: description of your changes"
-```
+4. **Check types:**
 
-5. Push to your fork:
-
-```bash
-git push origin feature/your-feature-name
-```
-
-6. **Open a Pull Request** against the `main` branch of the original repository
+   ```bash
+   pnpm typecheck
+   ```
 
 ## Pull Request Checklist
 
-Before submitting your PR, please ensure:
+Before submitting your PR, ensure:
 
-- [ ] Tests pass (`pnpm test` passes)
-- [ ] Code builds without errors (`pnpm run build` succeeds)
-- [ ] New code is properly typed (TypeScript)
-- [ ] Documentation is updated if needed (README, comments)
-- [ ] Commit messages are clear and descriptive
+- [ ] Tests pass (`pnpm test`)
+- [ ] Code builds without errors (`pnpm build`)
+- [ ] TypeScript types are correct (`pnpm typecheck`)
+- [ ] New APIs are properly documented in JSDoc
+- [ ] README.md is updated if adding new methods
+- [ ] Commit messages follow conventional commits format
+
+## Commit Message Format
+
+We follow [Conventional Commits](https://www.conventionalcommits.org/):
+
+```
+feat: add new method
+fix: resolve issue with process termination
+docs: update API documentation
+test: add tests for new functionality
+```
 
 ## Code Style
 
-- Use TypeScript for all new code
-- Follow existing code formatting
+- Use TypeScript with strict mode
+- Follow existing code patterns
+- Use meaningful variable and function names
 - Add JSDoc comments for public APIs
-- Keep functions focused and small
 
 ## Reporting Issues
 
-If you find a bug or have a feature request:
+When reporting issues, please include:
 
-1. Check if the issue already exists
-2. If not, create a new issue with:
-   - Clear description
-   - Steps to reproduce (for bugs)
-   - Expected vs actual behavior
+- Chrome version
+- Manifest version (V2/V3)
+- Steps to reproduce
+- Expected vs actual behavior
+- Error messages (if any)
 
 ## License
 

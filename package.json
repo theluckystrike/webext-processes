@@ -2,25 +2,32 @@
   "name": "webext-processes",
   "version": "1.0.0",
   "description": "Typed process management helpers for Chrome extensions — monitor memory, CPU, and manage extension processes. Part of @zovo/webext.",
-  "main": "./dist/index.js",
-  "module": "./dist/index.mjs",
-  "types": "./dist/index.d.ts",
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.mjs",
-      "require": "./dist/index.js"
-    }
-  },
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "sideEffects": false,
   "files": [
     "dist"
   ],
-  "sideEffects": false,
   "scripts": {
     "build": "tsc",
     "test": "vitest run",
+    "typecheck": "tsc --noEmit",
     "prepublishOnly": "npm run build"
   },
+  "keywords": [
+    "chrome-extension",
+    "chrome-processes",
+    "process-manager",
+    "browser-extension",
+    "chrome-api",
+    "manifest-v3",
+    "webextension",
+    "typescript",
+    "zovo"
+  ],
+  "author": "theluckystrike",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/theluckystrike/webext-processes.git"
@@ -32,20 +39,13 @@
   "engines": {
     "node": ">=18"
   },
-  "keywords": [
-    "chrome-extension",
-    "chrome-processes",
-    "process-manager",
-    "browser-extension",
-    "chrome-api",
-    "manifest-v3",
-    "webextension",
-    "typescript",
-    "memory",
-    "cpu"
-  ],
-  "author": "theluckystrike",
-  "license": "MIT",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
+    }
+  },
   "devDependencies": {
     "@types/chrome": "^0.0.260",
     "@types/node": "^20.11.24",
